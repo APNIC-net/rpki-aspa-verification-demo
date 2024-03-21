@@ -1,0 +1,11 @@
+[package]
+name = "rpki-aspa-verification-demo"
+version = "0.1.0"
+edition = "2021"
+authors = ["Beau Gieskens <beau.gieskens@apnic.net>", "Rafael Cintra <rafael@apnic.net>"]
+repository = "https://github.com/APNIC-net/rpki-aspa-verification-demo"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bgpkit-parser = "0.10"
