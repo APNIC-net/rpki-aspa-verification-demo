@@ -28,8 +28,8 @@ pub enum PathType {
 /// Performs the ASPA verification for the given `as_path` according to the defined `path_type`
 /// (i.e. upstream or downstream) and collection of validated ASPAs provided.
 ///
-/// The ASPAs are provided as a [HashMap] having the Customer AS (CAS) as keys represented by [u32], and the Set of
-/// Provider ASes (SPAS) as values represented by [HashSet] of [u32].
+/// The ASPAs are provided as a [HashMap] having the Customer AS (CAS) as keys represented by
+/// [u32], and the Set of Provider ASes (SPAS) as values represented by [HashSet] of [u32].
 pub fn verify(
     as_path: &AsPath,
     path_type: PathType,
@@ -41,13 +41,21 @@ pub fn verify(
     }
 }
 
-/// Performs the [algorithm for upstream paths](https://www.ietf.org/archive/id/draft-ietf-sidrops-aspa-verification-17.html#name-algorithm-for-upstream-path).
+/// Performs the [algorithm for upstream paths]
+/// (https://www.ietf.org/archive/id/draft-ietf-sidrops-aspa-verification-17.html#name-algorithm-for-upstream-path).
 ///
 /// 1. If the AS_PATH has an AS_SET, then the procedure halts with the outcome "Invalid".
-/// 2. Collapse prepends in the AS_SEQUENCE(s) in the AS_PATH (i.e., keep only the unique AS numbers). Let the resulting ordered sequence be represented by {AS(N), AS(N-1), ..., AS(2), AS(1)}, where AS(1) is the first-added (i.e., origin) AS and AS(N) is the last-added AS and neighbor to the receiving/validating AS.
+/// 2. Collapse prepends in the AS_SEQUENCE(s) in the AS_PATH (i.e., keep only the unique AS
+/// numbers).
+/// Let the resulting ordered sequence be represented by {AS(N), AS(N-1), ..., AS(2), AS(1)},
+/// where AS(1) is the first-added (i.e., origin) AS and AS(N) is the last-added AS and neighbor
+/// to the receiving/validating AS.
 /// 3. If N = 1, then the procedure halts with the outcome "Valid". Else, continue.
-/// 4. At this step, N ≥ 2. If there is an i such that 2 ≤ i ≤ N and hop(AS(i-1), AS(i)) = "Not Provider+", then the procedure halts with the outcome "Invalid". Else, continue.
-/// 5. If there is an i such that 2 ≤ i ≤ N and hop(AS(i-1), AS(i)) = "No Attestation", then the procedure halts with the outcome "Unknown". Else, the procedure halts with the outcome "Valid".
+/// 4. At this step, N ≥ 2. If there is an i such that 2 ≤ i ≤ N and hop(AS(i-1), AS(i)) =
+/// "Not Provider+", then the procedure halts with the outcome "Invalid". Else, continue.
+/// 5. If there is an i such that 2 ≤ i ≤ N and hop(AS(i-1), AS(i)) = "No Attestation", then
+/// the procedure halts with the outcome "Unknown". Else, the procedure halts with the outcome
+/// "Valid".
 ///
 /// It is assumed that any VAP-SPAS which have AS0 combined with other ASes have already been
 /// filtered out before using this.
@@ -97,15 +105,29 @@ pub fn verify_upstream(as_path: &AsPath, aspas: &HashMap<u32, HashSet<u32>>) -> 
     VerificationResult::Valid
 }
 
-/// Performs the [algorithm for downstream paths](https://www.ietf.org/archive/id/draft-ietf-sidrops-aspa-verification-17.html#name-algorithm-for-downstream-pa).
+/// Performs the [algorithm for downstream paths]
+/// (https://www.ietf.org/archive/id/draft-ietf-sidrops-aspa-verification-17.html#name-algorithm-for-downstream-pa).
 ///
 /// 1. If the AS_PATH has an AS_SET, then the procedure halts with the outcome "Invalid".
-/// 2. Collapse prepends in the AS_SEQUENCE(s) in the AS_PATH (i.e., keep only the unique AS numbers). Let the resulting ordered sequence be represented by {AS(N), AS(N-1), ..., AS(2), AS(1)}, where AS(1) is the first-added (i.e., origin) AS and AS(N) is the last-added AS and neighbor to the receiving/validating AS.
+/// 2. Collapse prepends in the AS_SEQUENCE(s) in the AS_PATH (i.e., keep only the unique AS
+/// numbers). Let the resulting ordered sequence be represented by {AS(N), AS(N-1), ..., AS(2),
+/// AS(1)}, where AS(1) is the first-added (i.e., origin) AS and AS(N) is the last-added AS and
+/// neighbor to the receiving/validating AS.
 /// 3. If 1 ≤ N ≤ 2, then the procedure halts with the outcome "Valid". Else, continue.
-/// 4. At this step, N ≥ 3. Given the above-mentioned ordered sequence, find the lowest value of u (2 ≤ u ≤ N) for which hop(AS(u-1), AS(u)) = "Not Provider+". Call it u_min. If no such u_min exists, set u_min = N+1. Find the highest value of v (N-1 ≥ v ≥ 1) for which hop(AS(v+1), AS(v)) = "Not Provider+". Call it v_max. If no such v_max exists, then set v_max = 0. If u_min ≤ v_max, then the procedure halts with the outcome "Invalid". Else, continue.
-/// 5. Up-ramp: For 2 ≤ i ≤ N, determine the largest K such that hop(AS(i-1), AS(i)) = "Provider+" for each i in the range 2 ≤ i ≤ K. If such a largest K does not exist, then set K = 1.
-/// 6. Down-ramp: For N-1 ≥ j ≥ 1, determine the smallest L such that hop(AS(j+1), AS(j)) = "Provider+" for each j in the range N-1 ≥ j ≥ L. If such smallest L does not exist, then set L = N.
-/// 7. If L-K ≤ 1, then the procedure halts with the outcome "Valid". Else, the procedure halts with the outcome "Unknown".
+/// 4. At this step, N ≥ 3. Given the above-mentioned ordered sequence, find the lowest value of
+/// u (2 ≤ u ≤ N) for which hop(AS(u-1), AS(u)) = "Not Provider+". Call it u_min. If no such
+/// u_min exists, set u_min = N+1. Find the highest value of v (N-1 ≥ v ≥ 1) for which
+/// hop(AS(v+1), AS(v)) = "Not Provider+". Call it v_max. If no such v_max exists, then set
+/// v_max = 0. If u_min ≤ v_max, then the procedure halts with the outcome "Invalid". Else,
+/// continue.
+/// 5. Up-ramp: For 2 ≤ i ≤ N, determine the largest K such that hop(AS(i-1),
+/// AS(i)) = "Provider+" for each i in the range 2 ≤ i ≤ K. If such a largest K does not exist,
+/// then set K = 1.
+/// 6. Down-ramp: For N-1 ≥ j ≥ 1, determine the smallest L such that hop(AS(j+1),
+/// AS(j)) = "Provider+" for each j in the range N-1 ≥ j ≥ L. If such smallest L does not
+/// exist, then set L = N.
+/// 7. If L-K ≤ 1, then the procedure halts with the outcome "Valid". Else, the procedure halts
+/// with the outcome "Unknown".
 pub fn verify_downstream(
     as_path: &AsPath,
     aspas: &HashMap<u32, HashSet<u32>>,
@@ -219,8 +241,8 @@ pub enum HopStatus {
     NotProviderPlus,
 }
 
-/// Performs the hop check function according to the [draft
-/// spec](https://www.ietf.org/archive/id/draft-ietf-sidrops-aspa-verification-17.html#name-hop-check-function).
+/// Performs the hop check function according to the [draft spec]
+/// (https://www.ietf.org/archive/id/draft-ietf-sidrops-aspa-verification-17.html#name-hop-check-function).
 ///
 /// ```text
 ///                      /
